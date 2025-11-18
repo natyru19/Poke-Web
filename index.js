@@ -14,29 +14,33 @@ const compareSection = document.createElement("section");
 compareSection.classList.add("compareSection");
 body.appendChild(compareSection);
 
-const currentPage=1;
 let arraySelected = [];
+let winner, loser;
+let poke1;
+let poke2;
 let card;
 
+let containerCardCompare = document.createElement("div");
+containerCardCompare.classList.add("containerCardCompare");
+
 const renderCard = (info) =>{
-
     card = document.createElement("div");
-        card.classList.add("card");
+    card.classList.add("card");
         
-        card.setAttribute("dataId-", info.id)
-        let text = document.createElement("p");
-        text.classList.add("textName");
+    card.setAttribute("dataId-", info.id)
+    let text = document.createElement("p");
+    text.classList.add("textName");
 
-        text.innerText = info.name;
-        let img = document.createElement("img")
-        img.classList.add("cardImg")
-        img.setAttribute("src", info.img)
+    text.innerText = info.name;
+    let img = document.createElement("img")
+    img.classList.add("cardImg")
+    img.setAttribute("src", info.img)
 
-        card.appendChild(img);
-        card.appendChild(text);
-        main.appendChild(card);
+    card.appendChild(img);
+    card.appendChild(text);
+    main.appendChild(card);
 
-        selectedCard(info);
+    selectedCard(info);
 }
 
 const selectedCard = (info) =>{
@@ -46,67 +50,81 @@ const selectedCard = (info) =>{
         console.log(arraySelected);
             
         compareSection.innerHTML = "";
+        containerCardCompare.innerHTML = "";
 
-        if (arraySelected.length === 2) {
-
-        let poke1 = arraySelected[0];
-        let poke2 = arraySelected[1];
-
-        let winner, loser;
-
-        if (poke1.experience > poke2.experience) {
-            winner = poke1;
-            loser = poke2;
-        } else {
-            winner = poke2;
-            loser = poke1;
+        if(arraySelected.length==1){
+            poke1 = arraySelected[0];
+            renderCardCompare(poke1);
+            return;
         }
-            
-        arraySelected.forEach(card => {
-            let containerCardCompare = document.createElement("div");
-            containerCardCompare.classList.add("containerCardCompare");
+
+        if (arraySelected.length == 2) {        
+            poke2 = arraySelected[1];
+
+            if (poke1.experience > poke2.experience) {
+                winner = poke1;
+                loser = poke2;
+            } else {
+                winner = poke2;
+                loser = poke1;
+            }
+
+        renderCardCompare(poke1);
+        renderCardCompare(poke2);
+        arraySelected=[];
+
+        let btnReset = document.createElement("button");
+        btnReset.classList.add("btnReset");
+        btnReset.innerText = "Elegir otros pokemones";
+
+        btnReset.addEventListener("click", ()=>{
+            compareSection.innerHTML="";
+            containerCardCompare.innerHTML = "";
+            arraySelected=[];
+            poke1 = null;
+            poke2 = null;
+            winner = null;
+            loser = null;
+        });
+        
+        compareSection.appendChild(btnReset);
+        return;
+        };
+        
+    });
+}
+
+const renderCardCompare = (cardCompare) => {            
 
             let pokeCard = document.createElement("div");
             pokeCard.classList.add("pokeCard");
 
-            if (card === winner) {
+            if (cardCompare.id == winner?.id) {
                 pokeCard.classList.add("winner");
             }
 
-            if (card === loser) {
+            if (cardCompare.id == loser?.id) {
                 pokeCard.classList.add("loser");
             }
 
             let nameCompare = document.createElement("h3");
             nameCompare.classList.add("nameCompare");
-            nameCompare.innerText = card.name;
+            nameCompare.innerText = cardCompare.name;
 
             let imgCompare = document.createElement("img");
             imgCompare.classList.add("imgCompare");
-            imgCompare.setAttribute("src", card.img);
+            imgCompare.setAttribute("src", cardCompare.img);
 
             let experienceCompare = document.createElement("p");
             experienceCompare.classList.add("experienceCompare");
-            experienceCompare.innerText = card.experience;
+            experienceCompare.innerText = cardCompare.experience;
 
             pokeCard.appendChild(nameCompare);
             pokeCard.appendChild(imgCompare);
             pokeCard.appendChild(experienceCompare);
+
             containerCardCompare.appendChild(pokeCard);
             compareSection.appendChild(containerCardCompare);
-        });
-            
-        let btnReset = document.createElement("button");
-            btnReset.classList.add("btnReset");
-            btnReset.innerText = "Elegir otros pokemones";
-            compareSection.appendChild(btnReset);
-
-            btnReset.addEventListener("click", ()=>{
-                compareSection.innerHTML="";
-                arraySelected=[];
-            });
-        };
-    });
 }
 
 const getData = async() =>{
