@@ -79,6 +79,7 @@ body{
     user-select: none;
 }
 
+/* SECCION COMPARE */
 .sectionCompare{
     background: linear-gradient(0.25turn, #3f87a6, #ebf8e1, #3f87a6);
     width: 80%;
@@ -156,15 +157,54 @@ body{
     margin: 10px;
 }
 
+/* PAGINACION */
+.containerPagination {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.containerPagination button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.containerPagination button.active {
+    border: 2px solid #007bff;
+    background: #e7f0ff;
+    font-weight: bold;
+}
+
+.containerPagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.containerPagination .dots {
+    padding: 0 5px;
+    font-size: 18px;
+    color: #666;
+}
+
+/* CANTIDAD TOTAL DE POKEMONES */
 .count{
     text-align: center;
     padding: 10px;
 }
 
+/* FOOTER */
+
 .footer{
     height: 150px;
     background: linear-gradient(to right, rgba(180, 0, 0, 0.6), rgba(0,0,0,0.8));
     align-content: center;
+    position: relative;
+    bottom: 0px;
 }
 
 .textFooter{

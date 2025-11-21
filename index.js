@@ -85,29 +85,32 @@ const dataInfo = {
             "url": "https://pokeapi.co/api/v2/pokemon/20/"
         }
     ]
-}
-
-const body = document.body;
-const main = document.querySelector(".main");
-const header = document.querySelector(".header");
-
-const titlePrincipal = document.createElement("p");
-titlePrincipal.classList.add("titlePrincipal");
-titlePrincipal.innerText = "Poke Web";
-
-header.appendChild(titlePrincipal);
-body.appendChild(header);
-body.appendChild(main);
-
-const sectionCompare = document.createElement("section");
-sectionCompare.classList.add("sectionCompare");
-body.appendChild(sectionCompare);
+};
 
 let arraySelected = [];
 let winner, loser;
 let poke1;
 let poke2;
 let firstSelectedCard = null;
+let limit = 20;
+let currentPage = 1;
+let totalPages = 0;
+
+let main = document.querySelector(".main");
+
+const createHeader = () => {    
+    let header = document.querySelector(".header");
+    const titlePrincipal = document.createElement("p");
+    titlePrincipal.classList.add("titlePrincipal");
+    titlePrincipal.innerText = "Poke Web";
+    header.appendChild(titlePrincipal);
+    return header;
+};
+
+const body = document.body;
+
+let sectionCompare = document.querySelector(".sectionCompare");
+let sectionPaginate = document.querySelector(".sectionPaginate");
 
 let containerCardCompare = document.createElement("div");
 containerCardCompare.classList.add("containerCardCompare");
@@ -115,13 +118,12 @@ containerCardCompare.classList.add("containerCardCompare");
 const renderCard = (info) =>{
     const card = document.createElement("div");
     card.classList.add("card");
-    //card.dataset.id = info.id;
-    card.setAttribute("dataId-", info.id)
-        
+    card.dataset.id = info.id;
+    
     let text = document.createElement("p");
     text.classList.add("textName");
-
     text.innerText = info.name;
+
     let img = document.createElement("img")
     img.classList.add("cardImg")
     img.setAttribute("src", info.img)
@@ -131,7 +133,7 @@ const renderCard = (info) =>{
     main.appendChild(card);
 
     selectedCard(info, card);
-}
+};
 
 const selectedCard = (info, card) =>{
 
@@ -201,13 +203,12 @@ const selectedCard = (info, card) =>{
             loser = null;
         });
         
-        
         sectionCompare.appendChild(btnReset);
         return;
         };
         
     });
-}
+};
 
 const renderCardCompare = (cardCompare) => {            
 
@@ -240,28 +241,105 @@ const renderCardCompare = (cardCompare) => {
 
             containerCardCompare.appendChild(pokeCard);
             sectionCompare.appendChild(containerCardCompare);
-}
+};
 
-const getData = async() =>{
+const createPagination = (totalCount) =>{
+    const containerPagination = document.createElement("div");
+    containerPagination.classList.add("containerPagination");
 
-    /*
-    const response = await fetch('https://pokeapi.co/api/v2/pokemon')
+    containerPagination.innerText = "";
+    const totalPages = Math.ceil(totalCount / limit);
+    
+    sectionPaginate.innerHTML = "";
+
+    const btnPrev = document.createElement("button");
+    btnPrev.classList.add("btnPrev");
+    btnPrev.innerText = "< Anterior";
+    btnPrev.disabled = currentPage == 1;
+
+    btnPrev.addEventListener("click", () => {        
+        currentPage--;
+        getData(currentPage);
+    });
+
+    containerPagination.appendChild(btnPrev);
+
+    let start = Math.max(1, currentPage - 2);
+    let end = Math.min(totalPages, currentPage + 2);
+
+    if(currentPage <= 3){
+        end = Math.min(5, totalPages);
+    }
+
+    if(currentPage >= totalPages - 2){
+        start = Math.max(totalPages - 4, 1);
+    }
+
+    if(start > 1){
+        addPageButton(containerPagination, 1);
+        containerPagination.appendChild(createDots());
+    }
+
+    for(let i=start; i<=end; i++){
+        addPageButton(containerPagination, i);
+    }
+
+    if(end < totalPages){
+        containerPagination.appendChild(createDots());
+        addPageButton(containerPagination, totalPages);
+    }
+
+    const btnNext = document.createElement("button");
+    btnNext.classList.add("btnNext");
+    btnNext.innerText = "Siguiente >";
+    btnNext.disabled = currentPage == totalPages;
+
+    btnNext.addEventListener("click", () => {
+        currentPage++;        
+        getData(currentPage);
+    });
+    containerPagination.appendChild(btnNext);
+    sectionPaginate.appendChild(containerPagination);
+    
+};
+
+const addPageButton = (containerPagination, page) => {
+    const btnPage = document.createElement("button");
+    btnPage.innerText = page;    
+    
+    if(page == currentPage){
+        btnPage.classList.add("active");
+    }
+
+    btnPage.addEventListener("click", () => {
+        currentPage = page;
+        getData(currentPage);
+    });
+
+    containerPagination.appendChild(btnPage);
+};
+
+const createDots = () => {
+    const spanDots = document.createElement("span");
+    spanDots.innerText = "...";
+    spanDots.classList.add("dots");
+    return spanDots;
+};
+
+const getData = async(page = 1) =>{
+
+    main.innerHTML = "";
+    
+    let offset = (page - 1) * limit;
+    let url = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`;
+
+    const response = await fetch(url);
     const responseData = await response.json();
-    */
-    const responseData = dataInfo;
+
+    //const responseData = dataInfo;
 
     let totalCount = responseData.count;
-    let count = document.createElement("p");
-    count.classList.add("count");
-    count.innerHTML= `<strong>Total de pokemones: </strong> ${totalCount}`
-    body.appendChild(count);
-
-    const footer = document.querySelector(".footer");
-    const textFooter = document.createElement("p");
-    textFooter.classList.add("textFooter");
-    textFooter.innerText = "© Natalia Rubio - 2025";
-    footer.appendChild(textFooter);
-    body.appendChild(footer);
+    createPagination(totalCount);
     
     responseData.results.forEach(async(poke) =>{
         const res = await fetch(poke.url);
@@ -279,4 +357,19 @@ const getData = async() =>{
     });
 };
 
-getData();
+const createFooter = () => {
+    let footer = document.querySelector(".footer");
+    const textFooter = document.createElement("p");
+    textFooter.classList.add("textFooter");
+    textFooter.innerText = "© Natalia Rubio - 2025";
+    footer.appendChild(textFooter);
+    return footer;
+};
+
+const init = () => {
+    createHeader();
+    getData(1);
+    createFooter();
+};
+
+init();
