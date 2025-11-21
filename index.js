@@ -117,6 +117,10 @@ let sectionPaginate = document.querySelector(".sectionPaginate");
 let containerCardCompare = document.createElement("div");
 containerCardCompare.classList.add("containerCardCompare");
 
+let containerMsjCompare = document.createElement("div");
+let msjCompare = document.createElement("p");
+msjCompare.classList.add("msjCompare");
+
 const renderCard = (info) =>{
     const card = document.createElement("div");
     card.classList.add("card");
@@ -140,6 +144,8 @@ const renderCard = (info) =>{
 const selectedCard = (info, card) =>{
 
     card.addEventListener("click", ()=>{
+
+        msjCompare.innerHTML = "";
         
         if(arraySelected.length == 0){
             firstSelectedCard = card;
@@ -194,7 +200,6 @@ const selectedCard = (info, card) =>{
         let btnReset = document.createElement("button");
         btnReset.classList.add("btnReset");
         btnReset.innerText = "Elegir otros pokemones";
-        
 
         btnReset.addEventListener("click", ()=>{
 
@@ -205,6 +210,7 @@ const selectedCard = (info, card) =>{
 
             sectionCompare.innerHTML="";
             containerCardCompare.innerHTML = "";
+            msjCompare.innerHTML = "";
             arraySelected=[];
             poke1 = null;
             poke2 = null;
@@ -227,6 +233,8 @@ const renderCardCompare = (cardCompare) => {
 
             if (cardCompare.id == winner?.id) {
                 pokeCard.classList.add("winner");
+                
+                msjCompare.innerHTML = `El ganador es <span>${cardCompare.name.toUpperCase()}!</span>`;
             };
 
             if (cardCompare.id == loser?.id) {
@@ -235,6 +243,7 @@ const renderCardCompare = (cardCompare) => {
             
             if(cardCompare.experience == equal){    
                 pokeCard.classList.add("equal");
+                msjCompare.innerText = "Hay empate!";
             }
 
             let nameCompare = document.createElement("h3");
@@ -255,6 +264,8 @@ const renderCardCompare = (cardCompare) => {
 
             containerCardCompare.appendChild(pokeCard);
             sectionCompare.appendChild(containerCardCompare);
+            containerMsjCompare.appendChild(msjCompare);
+            sectionCompare.appendChild(containerMsjCompare);
 };
 
 const createPagination = (totalCount) =>{

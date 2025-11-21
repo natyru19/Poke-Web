@@ -154,6 +154,15 @@ body{
     transform: scale(0.5);
 }
 
+.msjCompare{
+    font-size: 20px;
+}
+
+.msjCompare span{
+    color: #007bff;
+    text-shadow: 1px 0px 0px rgba(0,0,0,0.8);
+}
+
 .btnReset{
     background-color: #234C6A;
     color: #ffffff;
