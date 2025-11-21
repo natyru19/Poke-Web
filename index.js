@@ -88,13 +88,15 @@ const dataInfo = {
 };
 
 let arraySelected = [];
-let winner, loser;
+let winner, loser, equal;
 let poke1;
 let poke2;
 let firstSelectedCard = null;
 let limit = 20;
 let currentPage = 1;
 let totalPages = 0;
+let card1;
+let card2;
 
 let main = document.querySelector(".main");
 
@@ -169,18 +171,25 @@ const selectedCard = (info, card) =>{
             
             poke2 = arraySelected[1];
 
-            if (poke1.experience > poke2.experience) {
-                winner = poke1;
-                loser = poke2;
-            } else {
+            if (poke1.experience > poke2.experience){
+                winner = poke1;                
+                loser = poke2;                
+            } else if(poke2.experience > poke1.experience){
                 winner = poke2;
                 loser = poke1;
-            }
+            } else if(poke1.experience == poke2.experience){
+                expCompare = [poke1.experience, poke2.experience];
+                equal = expCompare[0];
+            };
         
         renderCardCompare(poke1);
         renderCardCompare(poke2);
         arraySelected=[];
-        
+        poke1 = null;
+        poke2 = null;
+        winner = null;
+        loser = null;
+        equal = null;
 
         let btnReset = document.createElement("button");
         btnReset.classList.add("btnReset");
@@ -201,6 +210,7 @@ const selectedCard = (info, card) =>{
             poke2 = null;
             winner = null;
             loser = null;
+            equal = null;
         });
         
         sectionCompare.appendChild(btnReset);
@@ -217,10 +227,14 @@ const renderCardCompare = (cardCompare) => {
 
             if (cardCompare.id == winner?.id) {
                 pokeCard.classList.add("winner");
-            }
+            };
 
             if (cardCompare.id == loser?.id) {
                 pokeCard.classList.add("loser");
+            };            
+            
+            if(cardCompare.experience == equal){    
+                pokeCard.classList.add("equal");
             }
 
             let nameCompare = document.createElement("h3");
@@ -329,6 +343,7 @@ const createDots = () => {
 const getData = async(page = 1) =>{
 
     main.innerHTML = "";
+    sectionCompare.innerHTML = "";
     
     let offset = (page - 1) * limit;
     let url = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`;

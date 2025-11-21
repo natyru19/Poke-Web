@@ -146,6 +146,14 @@ body{
     transform: scale(0.5);
 }
 
+.equal{
+    background-color: #FFE08F;
+}
+
+.equal .imgCompare{
+    transform: scale(0.5);
+}
+
 .btnReset{
     background-color: #234C6A;
     color: #ffffff;
