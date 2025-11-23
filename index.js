@@ -145,14 +145,37 @@ const selectedCard = (info, card) =>{
 
     card.addEventListener("click", ()=>{
 
-        msjCompare.innerHTML = "";
+        if(card.classList.contains("disabled")) {
+        return;
+        }
+
+        if(arraySelected.length == 2){
+            document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
+            document.querySelectorAll(".disabled").forEach(c => c.classList.remove("disabled"));
+
+            clearCompareSection();
+            sectionCompare.innerHTML = "";
+            containerCardCompare.innerHTML = "";
+            msjCompare.innerHTML = "";
+
+            arraySelected = [];
+            firstSelectedCard = null;
+        }
+
+        console.log("hice clic en una nueva carta");
+        console.log(card);
         
         if(arraySelected.length == 0){
-            firstSelectedCard = card;
-            card.classList.add("disabled");
+            document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
+            document.querySelectorAll(".disabled").forEach(c => c.classList.remove("disabled"));
+            firstSelectedCard = card;            
+            firstSelectedCard.classList.add("disabled");
+            firstSelectedCard.classList.add("selected");
         }
         
         arraySelected.push(info);
+        console.log(arraySelected);
+        
 
         sectionCompare.innerHTML = "";
         containerCardCompare.innerHTML = "";
@@ -162,20 +185,49 @@ const selectedCard = (info, card) =>{
         titleCompareSection.innerText = "Tabla de compraración";
         sectionCompare.appendChild(titleCompareSection);
 
-        if(arraySelected.length==1){            
+        if(arraySelected.length==1){
+            
             poke1 = arraySelected[0];
-            renderCardCompare(poke1);
-            return;
-        }
+            
+            renderCardCompare(poke1);            
 
-        if (arraySelected.length == 2) {
+            let btnDeleteCardSelected = document.createElement("button");
+            btnDeleteCardSelected.classList.add("btnDeleteCardSelected");
+            btnDeleteCardSelected.innerText = "Borrar";
+            sectionCompare.appendChild(btnDeleteCardSelected);
+
+            btnDeleteCardSelected.addEventListener("click", () =>{
+                sectionCompare.innerHTML = "";
+                containerCardCompare.innerHTML = "";
+                if (firstSelectedCard) {
+                    firstSelectedCard.classList.remove("disabled");
+                    firstSelectedCard.classList.remove("selected");
+                    firstSelectedCard = null;
+                };
+                arraySelected = [];                
+            });
+
+            if(arraySelected.length == 0){
+                firstSelectedCard = card;
+                firstSelectedCard.classList.add("disabled");
+                firstSelectedCard.classList.add("selected");
+            }            
+            return;
+        };        
+
+        console.log("carta2", arraySelected[1]);
+
+        if (arraySelected.length == 2) {            
             
             if (firstSelectedCard) {
                 firstSelectedCard.classList.remove("disabled");
-                firstSelectedCard = null;
+                console.log("primera carta de las 2 que se seleccionaron", firstSelectedCard);
             };
             
             poke2 = arraySelected[1];
+            card.classList.add("selected");
+            console.log("carta2 seleccionada", card);
+            
 
             if (poke1.experience > poke2.experience){
                 winner = poke1;                
@@ -188,41 +240,32 @@ const selectedCard = (info, card) =>{
                 equal = expCompare[0];
             };
         
-        renderCardCompare(poke1);
-        renderCardCompare(poke2);
-        arraySelected=[];
-        poke1 = null;
-        poke2 = null;
-        winner = null;
-        loser = null;
-        equal = null;
+            renderCardCompare(poke1);
+            renderCardCompare(poke2);
+            clearCompareSection();
 
-        let btnReset = document.createElement("button");
-        btnReset.classList.add("btnReset");
-        btnReset.innerText = "Elegir otros pokemones";
+            let btnReset = document.createElement("button");
+            btnReset.classList.add("btnReset");
+            btnReset.innerText = "Elegir otros pokemones";
 
-        btnReset.addEventListener("click", ()=>{
+            btnReset.addEventListener("click", ()=>{
+                console.log("hice clic en boton otros pokes");           
+            
+                firstSelectedCard.classList.remove("selected");
+                card.classList.remove("selected");
+                clearCompareSection();
+                sectionCompare.innerHTML="";
+                containerCardCompare.innerHTML = "";
+                msjCompare.innerHTML = "";
+            });
 
-            if (firstSelectedCard) {
-                firstSelectedCard.classList.remove("disabled");
-                firstSelectedCard = null;
-            };
-
-            sectionCompare.innerHTML="";
-            containerCardCompare.innerHTML = "";
-            msjCompare.innerHTML = "";
-            arraySelected=[];
-            poke1 = null;
-            poke2 = null;
-            winner = null;
-            loser = null;
-            equal = null;
-        });
-        
-        sectionCompare.appendChild(btnReset);
-        return;
+            sectionCompare.appendChild(btnReset);
+            console.log(firstSelectedCard);
+            console.log(card);
+            
+            
+            return;
         };
-        
     });
 };
 
@@ -390,6 +433,15 @@ const createFooter = () => {
     textFooter.innerText = "© Natalia Rubio - 2025";
     footer.appendChild(textFooter);
     return footer;
+};
+
+const clearCompareSection = () =>{
+    arraySelected = [];
+    poke1 = null;
+    poke2 = null;
+    winner = null;
+    loser = null;
+    equal = null;
 };
 
 const init = () => {
