@@ -1,4 +1,3 @@
-
 const dataInfo = {
     "count": 1328,
     "next": "https://pokeapi.co/api/v2/pokemon?offset=20&limit=20",
@@ -91,13 +90,15 @@ let arraySelected = [];
 let winner, loser, equal;
 let poke1;
 let poke2;
-let firstSelectedCard = null;
+let firstCardSelected = null;
 let limit = 20;
 let currentPage = 1;
 let totalPages = 0;
 let card1;
 let card2;
+let pokemonesEnPantalla = [];
 
+let searchSection = document.querySelector(".searchSection");
 let main = document.querySelector(".main");
 
 const createHeader = () => {    
@@ -121,37 +122,130 @@ let containerMsjCompare = document.createElement("div");
 let msjCompare = document.createElement("p");
 msjCompare.classList.add("msjCompare");
 
-const renderCard = (info) =>{
+const renderCard = (pokemonObj) =>{
+
     const card = document.createElement("div");
     card.classList.add("card");
-    card.dataset.id = info.id;
+    card.dataset.id = pokemonObj.id;
     
     let text = document.createElement("p");
     text.classList.add("textName");
-    text.innerText = info.name;
+    text.innerText = pokemonObj.name;
 
     let img = document.createElement("img")
     img.classList.add("cardImg")
-    img.setAttribute("src", info.img)
+    img.setAttribute("src", pokemonObj.img)
 
     card.appendChild(img);
     card.appendChild(text);
-    main.appendChild(card);
 
-    selectedCard(info, card);
+    return card;
 };
 
-const selectedCard = (info, card) =>{
+const search = () =>{
+    const searchInput = document.createElement("input");
+    searchInput.classList.add("searchInput");
+    searchInput.placeholder = "Buscar pokemon";
 
+    const btnSearch = document.createElement("button");
+    btnSearch.classList.add("btnSearch");
+    btnSearch.innerText = "Buscar";
+
+    searchSection.appendChild(searchInput);
+    searchSection.appendChild(btnSearch);
+
+    const handleSearchPokemon = async(e)=>{
+        e.preventDefault();
+        let pokemonName;
+        //submit es cuando hago click en el botòn (el botòn es tipo submit)
+        if(e.target.type=="submit"){
+            pokemonName = searchInput.value.toLowerCase();
+        }else{
+            pokemonName = e.target.value.toLowerCase();
+        }
+
+        if(pokemonName!=""){
+            const result = await getPokemonByName(pokemonName);
+
+            if(result!=null){
+                clearError();
+                main.innerHTML = "";
+                sectionCompare.innerHTML = "";
+                main.classList.add("single");
+
+                const card = renderCard(result);                
+                main.appendChild(card);
+            }else{
+                showSearchError(`No existe un pokèmon llamado ${pokemonName}`);
+            }
+        }else{
+            showSearchError("Debe ingresar un nombre para buscar.");
+        }
+    };
+
+    btnSearch.addEventListener("click", handleSearchPokemon);
+
+    searchInput.addEventListener("keydown", async(e)=>{
+        if(e.key == "Enter"){
+            handleSearchPokemon(e);
+        };
+    });
+
+    searchInput.addEventListener("input", () => {
+        if(searchInput.value == ""){
+            main.innerHTML = "";
+            getData(currentPage);
+        }else{
+            let searchedText = searchInput.value;
+        };
+    });
+};
+
+const getPokemonByName = async(pokemonName) =>{
+    const urlPokemon = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
+    const response = await fetch(urlPokemon);
+
+    if(response.status == 200){
+        const responseData = await response.json();
+        
+        const pokeInfo = {
+            name: responseData.name,
+            img:  responseData.sprites.other.dream_world.front_default,
+            experience: responseData.base_experience,
+            url : responseData.url,
+            id : responseData.id
+        };
+        
+        return pokeInfo;
+        
+    }else{
+        return null;
+    }
+};
+
+function clearError(){
+    if(searchSection.childNodes[3]!=undefined){
+        searchSection.removeChild(searchSection.childNodes[3])
+    }
+}
+
+const showSearchError = (error) =>{
+    clearError()
+    const searchErrorP = document.createElement("p");
+    searchErrorP.classList.add("searchErrorP");
+    searchErrorP.innerText = error;
+    searchSection.appendChild(searchErrorP);
+}
+
+const handleCardSelection = (info, card) =>{
     card.addEventListener("click", ()=>{
 
         if(card.classList.contains("disabled")) {
         return;
-        }
+        };
 
         if(arraySelected.length == 2){
-            document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
-            document.querySelectorAll(".disabled").forEach(c => c.classList.remove("disabled"));
+            resetSelection();            
 
             clearCompareSection();
             sectionCompare.innerHTML = "";
@@ -159,23 +253,17 @@ const selectedCard = (info, card) =>{
             msjCompare.innerHTML = "";
 
             arraySelected = [];
-            firstSelectedCard = null;
-        }
-
-        console.log("hice clic en una nueva carta");
-        console.log(card);
+            firstCardSelected = null;
+        };
         
         if(arraySelected.length == 0){
-            document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
-            document.querySelectorAll(".disabled").forEach(c => c.classList.remove("disabled"));
-            firstSelectedCard = card;            
-            firstSelectedCard.classList.add("disabled");
-            firstSelectedCard.classList.add("selected");
-        }
+            resetSelection();
+            firstCardSelected = card;
+            firstCardSelected.classList.add("disabled");
+            firstCardSelected.classList.add("selected");
+        };
         
         arraySelected.push(info);
-        console.log(arraySelected);
-        
 
         sectionCompare.innerHTML = "";
         containerCardCompare.innerHTML = "";
@@ -199,35 +287,60 @@ const selectedCard = (info, card) =>{
             btnDeleteCardSelected.addEventListener("click", () =>{
                 sectionCompare.innerHTML = "";
                 containerCardCompare.innerHTML = "";
-                if (firstSelectedCard) {
-                    firstSelectedCard.classList.remove("disabled");
-                    firstSelectedCard.classList.remove("selected");
-                    firstSelectedCard = null;
+                if (firstCardSelected) {
+                    firstCardSelected.classList.remove("disabled");
+                    firstCardSelected.classList.remove("selected");
+                    firstCardSelected = null;
                 };
                 arraySelected = [];                
             });
 
             if(arraySelected.length == 0){
-                firstSelectedCard = card;
-                firstSelectedCard.classList.add("disabled");
-                firstSelectedCard.classList.add("selected");
-            }            
+                firstCardSelected = card;
+                firstCardSelected.classList.add("disabled");
+                firstCardSelected.classList.add("selected");
+            };            
             return;
-        };        
-
-        console.log("carta2", arraySelected[1]);
+        };
 
         if (arraySelected.length == 2) {            
-            
-            if (firstSelectedCard) {
-                firstSelectedCard.classList.remove("disabled");
-                console.log("primera carta de las 2 que se seleccionaron", firstSelectedCard);
+            window.location.href="#sectionCompare";
+            if (firstCardSelected) {
+                firstCardSelected.classList.remove("disabled");
             };
             
             poke2 = arraySelected[1];
-            card.classList.add("selected");
-            console.log("carta2 seleccionada", card);
+            renderComparision(card, poke1, poke2);
+
+            let btnReset = document.createElement("button");
+            btnReset.classList.add("btnReset");
+            btnReset.innerText = "Elegir otros pokemones";
+
+            btnReset.addEventListener("click", ()=>{          
             
+                firstCardSelected.classList.remove("selected");
+                card.classList.remove("selected");
+                clearCompareSection();
+                sectionCompare.innerHTML="";
+                containerCardCompare.innerHTML = "";
+                msjCompare.innerHTML = "";
+                window.location.href = "#header"
+            });
+
+            sectionCompare.appendChild(btnReset);
+            
+            return;
+        };
+    });
+};
+
+const resetSelection = () =>{
+    document.querySelectorAll(".selected").forEach(c => c.classList.remove("selected"));
+    document.querySelectorAll(".disabled").forEach(c => c.classList.remove("disabled"));
+};
+
+const renderComparision = (card, poke1, poke2) =>{
+            card.classList.add("selected");
 
             if (poke1.experience > poke2.experience){
                 winner = poke1;                
@@ -243,30 +356,6 @@ const selectedCard = (info, card) =>{
             renderCardCompare(poke1);
             renderCardCompare(poke2);
             clearCompareSection();
-
-            let btnReset = document.createElement("button");
-            btnReset.classList.add("btnReset");
-            btnReset.innerText = "Elegir otros pokemones";
-
-            btnReset.addEventListener("click", ()=>{
-                console.log("hice clic en boton otros pokes");           
-            
-                firstSelectedCard.classList.remove("selected");
-                card.classList.remove("selected");
-                clearCompareSection();
-                sectionCompare.innerHTML="";
-                containerCardCompare.innerHTML = "";
-                msjCompare.innerHTML = "";
-            });
-
-            sectionCompare.appendChild(btnReset);
-            console.log(firstSelectedCard);
-            console.log(card);
-            
-            
-            return;
-        };
-    });
 };
 
 const renderCardCompare = (cardCompare) => {            
@@ -394,7 +483,7 @@ const createDots = () => {
     return spanDots;
 };
 
-const getData = async(page = 1) =>{
+const getData = async(page = 1, renderBar=false) =>{
 
     main.innerHTML = "";
     sectionCompare.innerHTML = "";
@@ -404,13 +493,16 @@ const getData = async(page = 1) =>{
 
     const response = await fetch(url);
     const responseData = await response.json();
-
+    pokemonesEnPantalla = responseData.results
     //const responseData = dataInfo;
 
     let totalCount = responseData.count;
     createPagination(totalCount);
+    if(renderBar){
+        search();
+    }
     
-    responseData.results.forEach(async(poke) =>{
+    pokemonesEnPantalla.forEach(async(poke) =>{
         const res = await fetch(poke.url);
         const resData = await res.json();
 
@@ -422,7 +514,10 @@ const getData = async(page = 1) =>{
             id : poke.url.split("https://pokeapi.co/api/v2/pokemon/")[1].split("/")[0]
         };
 
-        renderCard(pokeInfo);
+        main.classList.remove("single");
+        const card = renderCard(pokeInfo);
+        main.appendChild(card);
+        handleCardSelection(pokeInfo, card);
     });
 };
 
@@ -446,7 +541,7 @@ const clearCompareSection = () =>{
 
 const init = () => {
     createHeader();
-    getData(1);
+    getData(1,true);
     createFooter();
 };
 
