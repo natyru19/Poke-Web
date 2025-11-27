@@ -143,6 +143,9 @@ const renderCard = (pokemonObj) =>{
 };
 
 const search = () =>{
+    const containerSearch = document.createElement("div");
+    containerSearch.classList.add("containerSearch");
+    
     const searchInput = document.createElement("input");
     searchInput.classList.add("searchInput");
     searchInput.placeholder = "Buscar pokemon";
@@ -151,17 +154,19 @@ const search = () =>{
     btnSearch.classList.add("btnSearch");
     btnSearch.innerText = "Buscar";
 
-    searchSection.appendChild(searchInput);
-    searchSection.appendChild(btnSearch);
+    containerSearch.appendChild(searchInput);
+    containerSearch.appendChild(btnSearch);
+    searchSection.appendChild(containerSearch);
 
     const handleSearchPokemon = async(e)=>{
         e.preventDefault();
+
         let pokemonName;
         //submit es cuando hago click en el botòn (el botòn es tipo submit)
         if(e.target.type=="submit"){
-            pokemonName = searchInput.value.toLowerCase();
+            pokemonName = searchInput.value.trim().toLowerCase();
         }else{
-            pokemonName = e.target.value.toLowerCase();
+            pokemonName = e.target.value.trim().toLowerCase();
         }
 
         if(pokemonName!=""){
@@ -176,11 +181,11 @@ const search = () =>{
                 const card = renderCard(result);                
                 main.appendChild(card);
             }else{
-                showSearchError(`No existe un pokèmon llamado ${pokemonName}`);
+                showSearchError(`No existe un pokemon llamado ${pokemonName}`);
             }
         }else{
-            showSearchError("Debe ingresar un nombre para buscar.");
-        }
+            showSearchError("Debe ingresar un nombre para buscar");
+        };
     };
 
     btnSearch.addEventListener("click", handleSearchPokemon);
@@ -194,6 +199,7 @@ const search = () =>{
     searchInput.addEventListener("input", () => {
         if(searchInput.value == ""){
             main.innerHTML = "";
+            
             getData(currentPage);
         }else{
             let searchedText = searchInput.value;
@@ -214,8 +220,7 @@ const getPokemonByName = async(pokemonName) =>{
             experience: responseData.base_experience,
             url : responseData.url,
             id : responseData.id
-        };
-        
+        };        
         return pokeInfo;
         
     }else{
@@ -230,11 +235,20 @@ function clearError(){
 }
 
 const showSearchError = (error) =>{
-    clearError()
+    clearError();
+    const containerSearchError = document.createElement("div");
+    containerSearchError.classList.add("containerSearchError");
+
     const searchErrorP = document.createElement("p");
     searchErrorP.classList.add("searchErrorP");
     searchErrorP.innerText = error;
-    searchSection.appendChild(searchErrorP);
+
+    setTimeout(function() {
+        searchErrorP.innerHTML = "";
+    }, 3000);
+
+    containerSearchError.appendChild(searchErrorP);
+    searchSection.appendChild(containerSearchError);
 }
 
 const handleCardSelection = (info, card) =>{
@@ -273,12 +287,9 @@ const handleCardSelection = (info, card) =>{
         titleCompareSection.innerText = "Tabla de compraración";
         sectionCompare.appendChild(titleCompareSection);
 
-        if(arraySelected.length==1){
-            
-            poke1 = arraySelected[0];
-            
-            renderCardCompare(poke1);            
-
+        if(arraySelected.length==1){            
+            poke1 = arraySelected[0];            
+            renderCardCompare(poke1);
             let btnDeleteCardSelected = document.createElement("button");
             btnDeleteCardSelected.classList.add("btnDeleteCardSelected");
             btnDeleteCardSelected.innerText = "Borrar";
@@ -292,7 +303,8 @@ const handleCardSelection = (info, card) =>{
                     firstCardSelected.classList.remove("selected");
                     firstCardSelected = null;
                 };
-                arraySelected = [];                
+                arraySelected = [];
+                window.location.href = "#header";                
             });
 
             if(arraySelected.length == 0){
@@ -316,19 +328,17 @@ const handleCardSelection = (info, card) =>{
             btnReset.classList.add("btnReset");
             btnReset.innerText = "Elegir otros pokemones";
 
-            btnReset.addEventListener("click", ()=>{          
-            
+            btnReset.addEventListener("click", ()=>{
                 firstCardSelected.classList.remove("selected");
                 card.classList.remove("selected");
                 clearCompareSection();
                 sectionCompare.innerHTML="";
                 containerCardCompare.innerHTML = "";
                 msjCompare.innerHTML = "";
-                window.location.href = "#header"
+                window.location.href = "#header";
             });
 
-            sectionCompare.appendChild(btnReset);
-            
+            sectionCompare.appendChild(btnReset);            
             return;
         };
     });

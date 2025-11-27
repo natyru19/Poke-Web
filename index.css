@@ -8,6 +8,7 @@ body{
     background-color: #FEE8D9;    
 }
 
+/* HEADER */
 .header{
     background-image: linear-gradient(rgba(180, 0, 0, 0.6), rgba(0,0,0,0.2)),
     url("/img/pokemon.jpg");
@@ -43,10 +44,13 @@ body{
     user-select: none;
 }
 
+/* BUSCADOR */
 .searchSection{
     display: flex;
     justify-content: center;
     margin: 8px 0 8px 0;
+    flex-direction: column;
+    align-items: center;
 }
 
 .searchInput{
@@ -62,6 +66,11 @@ body{
     font-size: 18px;
 }
 
+.searchErrorP{
+    font-size: 20px;
+}
+
+/* MAIN */
 .main{
     display: grid;    
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -109,7 +118,7 @@ body{
     user-select: none;
 }
 
-/* SECCION COMPARE */
+/* COMPARACION */
 .sectionCompare{
     background: linear-gradient(0.25turn, #3f87a6, #ebf8e1, #3f87a6);
     width: 80%;
@@ -250,14 +259,7 @@ body{
     color: #666;
 }
 
-/* CANTIDAD TOTAL DE POKEMONES */
-.count{
-    text-align: center;
-    padding: 10px;
-}
-
 /* FOOTER */
-
 .footer{
     height: 150px;
     background: linear-gradient(to right, rgba(180, 0, 0, 0.6), rgba(0,0,0,0.8));
